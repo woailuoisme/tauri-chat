@@ -22,6 +22,21 @@ tauri = { version = "2", features = [] }
 tauri-plugin-opener = "2"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
+tauri-plugin-updater = "2.14.1"
+tauri-plugin-single-instance = "2.5.5"
+tauri-plugin-notification = "2.8.0"
+tauri-plugin-global-shortcut = "2.4.1"
+tauri-plugin-autostart = "2.7.0"
+tauri-plugin-clipboard-manager = "2.5.0"
+tauri-plugin-deep-link = "2.6.3"
+tauri-plugin-positioner = "2.4.0"
+tauri-plugin-process = "2.4.0"
+tauri-plugin-dialog = "2.8.4"
+tauri-plugin-fs = "2.7.1"
+tauri-plugin-store = "2.5.0"
+tauri-plugin-log = "2.10.1"
+tauri-plugin-window-state = "2.5.0"
+tauri-plugin-os = "2.4.0"
 
 
 # Read the optimization guideline for more details: https://tauri.app/concept/size/#cargo-configuration
