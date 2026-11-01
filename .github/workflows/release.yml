@@ -127,21 +127,22 @@ jobs:
           - { label: Windows (x86_64), platform: windows-latest, args: "", targets: "" }
     runs-on: ${{ matrix.platform }}
     timeout-minutes: 60
-    env:
-      # 苹果签名与公证材料提到 job 级，供下方校验步骤与 tauri-action 共用
-      APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
-      APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
-      APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
-      KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
-      APPLE_ID: ${{ secrets.APPLE_ID }}
-      APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
-      APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
     steps:
       - uses: actions/checkout@v7
 
-      # 在 6 分钟的编译之前先验证签名材料，配置错误时 10 秒内给出明确原因
+      # 在 6 分钟的编译之前先验证签名材料，配置错误时 10 秒内给出明确原因。
+      # 关键：只有校验通过才把变量写入 $GITHUB_ENV —— 若设置成「存在但为空」，
+      # Rust 侧 var_os 会拿到 Some("")，仍然触发证书导入并报 Unable to decode。
       - name: Verify macOS signing material
         if: matrix.platform == 'macos-latest'
+        env:
+          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         run: |
           if [ -z "$APPLE_CERTIFICATE" ]; then
             echo "未配置 APPLE_CERTIFICATE，将产出未签名安装包"
@@ -159,6 +160,22 @@ jobs:
           openssl pkcs12 -info -in /tmp/signing.p12 -passin "pass:$APPLE_CERTIFICATE_PASSWORD" -nokeys -noout \
             || { echo "::error::PKCS#12 解码失败：证书须包含私钥且 APPLE_CERTIFICATE_PASSWORD 与导出时一致"; exit 1; }
           rm -f /tmp/signing.p12
+
+          {
+            echo "APPLE_CERTIFICATE=$APPLE_CERTIFICATE"
+            echo "APPLE_CERTIFICATE_PASSWORD=$APPLE_CERTIFICATE_PASSWORD"
+            echo "APPLE_SIGNING_IDENTITY=$APPLE_SIGNING_IDENTITY"
+            echo "KEYCHAIN_PASSWORD=$KEYCHAIN_PASSWORD"
+          } >> "$GITHUB_ENV"
+
+          # 公证三项齐全才导出，否则 tauri 跳过公证
+          if [ -n "$APPLE_ID" ] && [ -n "$APPLE_PASSWORD" ] && [ -n "$APPLE_TEAM_ID" ]; then
+            {
+              echo "APPLE_ID=$APPLE_ID"
+              echo "APPLE_PASSWORD=$APPLE_PASSWORD"
+              echo "APPLE_TEAM_ID=$APPLE_TEAM_ID"
+            } >> "$GITHUB_ENV"
+          fi
           echo "签名材料校验通过"
 
       - uses: oven-sh/setup-bun@v2
