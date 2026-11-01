@@ -38,16 +38,20 @@ jobs:
         run: |
           set -euo pipefail
           # 允许带或不带 v 前缀（v1.2.3 / 1.2.3），release 名称与 git tag 保持一致。
-          # 从分支触发会在这里被拒：请改用 tag 触发或在 ref 下拉框选择已有 tag。
+          # 数字段不允许前导零（SemVer 规定），所以 0.1.001 会在这一步被拒。
+          # 从分支触发也会在这里被拒：请改用 tag 触发或在 ref 下拉框选择已有 tag。
           tag="$REF_NAME"
-          [[ "$tag" =~ ^v?[0-9]+\.[0-9]+\.[0-9]+([-+][0-9A-Za-z.-]+)?$ ]] \
-            || { echo "::error::非法 tag：$tag，期望形如 v1.2.3 或 1.2.3"; exit 1; }
+          [[ "$tag" =~ ^v?(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)([-+][0-9A-Za-z.-]+)?$ ]] \
+            || { echo "::error::非法 tag：$tag，期望形如 v1.2.3 或 1.2.3（数字段不能补零）"; exit 1; }
           version="${tag#v}"
 
           # 安装包版本取自 tauri.conf.json，三处须与 tag 一致（预发布带同样后缀）
           for f in src-tauri/tauri.conf.json package.json; do
             got=$(jq -r .version "$f")
-            [[ "$got" == "$version" ]] || { echo "::error file=$f::版本 $got ≠ $version"; exit 1; }
+            [[ "$got" == "$version" ]] || {
+              echo "::error file=$f::版本 $got ≠ tag $tag —— 请改用与应用版本一致的 tag（当前应用版本为 $got），或同步更新 $f 的 version"
+              exit 1
+            }
           done
           got=$(awk '/^\[package\]/{f=1;next}/^\[/{f=0}f&&/^version[[:space:]]*=/{gsub(/[",]/,"");print $3;exit}' src-tauri/Cargo.toml)
           [[ "$got" == "$version" ]] || { echo "::error file=src-tauri/Cargo.toml::版本 $got ≠ $version"; exit 1; }
