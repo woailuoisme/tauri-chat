@@ -1,0 +1,32 @@
+/* ---------------------------------------------------------------------------
+ * Chat typography scale
+ *
+ * 应用级样式，单独成文件，避免污染 `global.css`（该文件由 shadcn 生成，
+ * 可随时被 `shadcn add` 覆盖重写）。
+ *
+ * Driven by `settings-store.fontSize`, applied as `data-font-size` on <html>.
+ * Only the conversation surface consumes `--chat-font-size`, so changing it
+ * never disturbs layout dimensions expressed in rem.
+ *
+ * `--chat-code-font-size` 由正文派生（0.875 倍），保证代码块跟随字号设置一起缩放；
+ * 两者都声明在 <html> 上，所以 calc() 会用到 data-font-size 覆盖后的值。
+ *
+ * 基准取 16px：与主流对话产品一致，也避免大屏下 14px 正文偏小。
+ * 代码 14px（0.875 倍）是阅读等宽文本的下限，再小会明显吃力。
+ * ------------------------------------------------------------------------- */
+:root {
+  --chat-font-size: 1rem;
+  --chat-code-font-size: calc(var(--chat-font-size) * 0.875);
+}
+
+html[data-font-size="small"] {
+  --chat-font-size: 0.9375rem;
+}
+
+html[data-font-size="medium"] {
+  --chat-font-size: 1rem;
+}
+
+html[data-font-size="large"] {
+  --chat-font-size: 1.0625rem;
+}

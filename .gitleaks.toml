@@ -1,0 +1,25 @@
+# gitleaks 配置
+# 规则与 schema：https://github.com/gitleaks/gitleaks#configuration
+
+[extend]
+# 继承内置规则集（AWS、OpenAI、GitHub PAT、私钥等 200 余条），
+# 只在其上做「排除」类调整，不自行发明规则。
+useDefault = true
+
+# 构建产物与依赖目录体积大、且含二进制元数据，是本项目唯一的稳定误报来源
+# （`src-tauri/target/**/*.rmeta` 里的 crate 元信息会被 generic-api-key 命中）。
+# 源码、测试与配置一律不允许排除。
+[[allowlists]]
+description = "依赖与构建产物"
+paths = ['''(^|/)node_modules/''', '''(^|/)dist/''', '''(^|/)src-tauri/target/''']
+
+# 文档与配置模板里出现的占位符不是密钥。
+# 只放行「明确的占位写法」，不按目录放行，避免削弱对真实密钥的检出。
+[[allowlists]]
+description = "文档与 UI 里的占位符"
+regexTarget = "line"
+regexes = [
+  '''sk-[a-z]{2}-(v1-)?…''',
+  '''(your|YOUR)[-_ ]?(api[-_ ]?key|token)''',
+  '''<[A-Z_]+_(KEY|TOKEN|SECRET)>''',
+]

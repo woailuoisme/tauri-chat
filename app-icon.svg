@@ -1,0 +1,46 @@
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  width="1024"
+  height="1024"
+  viewBox="0 0 1024 1024"
+  fill="none"
+>
+  <!--
+    应用图标源文件。修改后重新生成全平台图标：
+
+      bun run tauri icon app-icon.svg
+
+    设计说明：
+    - 主体是四角星芒（AI / 灵感的通用符号，同类产品如 Claude 亦采用星芒母题），
+      单一大图形 + 强对比，保证 16px 菜单栏尺寸下仍可辨识。
+    - 底板圆角 224（约 21.9%），对齐 macOS 与 Windows 11 的图标网格；
+      界面虽是 radius: 0 的锐利风格，但图标归操作系统管，直角会在 Dock 中显得突兀。
+    - 配色取自界面变量：底板为暗色背景，星芒为主色的暖橙渐变。
+  -->
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1024" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#2E2A34" />
+      <stop offset="1" stop-color="#141217" />
+    </linearGradient>
+
+    <!-- 顶部微光，避免大面积纯色显得扁平 -->
+    <linearGradient id="gloss" x1="0" y1="0" x2="0" y2="720" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.09" />
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0" />
+    </linearGradient>
+
+    <linearGradient id="mark" x1="300" y1="250" x2="724" y2="774" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFC089" />
+      <stop offset="1" stop-color="#C9671F" />
+    </linearGradient>
+  </defs>
+
+  <rect width="1024" height="1024" rx="224" fill="url(#bg)" />
+  <rect width="1024" height="1024" rx="224" fill="url(#gloss)" />
+
+  <!-- 四角星芒：四条凹边指向中心，占画布 55% -->
+  <path
+    d="M512 230 Q560 464 794 512 Q560 560 512 794 Q464 560 230 512 Q464 464 512 230 Z"
+    fill="url(#mark)"
+  />
+</svg>

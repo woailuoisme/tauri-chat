@@ -3,9 +3,19 @@ pre-commit:
   jobs:
     - name: oxfmt
       glob: "*.{js,jsx,ts,tsx,json,jsonc,css}"
+      # shadcn 生成代码不允许被自动改写
+      exclude: ["src/components/ui/**"]
       run: bunx oxfmt {staged_files}
       stage_fixed: true
 
     - name: oxlint
       glob: "*.{js,jsx,ts,tsx}"
+      exclude: ["src/components/ui/**"]
       run: bunx oxlint {staged_files}
+
+    - name: rumdl
+      glob: "*.md"
+      run: rumdl check {staged_files}
+
+    - name: gitleaks
+      run: gitleaks git --pre-commit --staged --redact --no-banner

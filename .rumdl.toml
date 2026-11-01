@@ -1,0 +1,12 @@
+# rumdl 配置（Markdown lint）
+# 规则文档：https://rumdl.dev/rules/
+
+[global]
+# 与 .gitignore 对齐，跳过 node_modules、dist、src-tauri/target
+respect-gitignore = true
+
+# MD013 行宽限制对中文文档不适用：
+# rumdl 默认按「显示宽度」计算（length-mode = "visual"），一个汉字占 2 列，
+# 一句正常的中文 30 字就超过 80，硬性换行反而破坏可读性。
+# 其余规则保持默认。
+disable = ["MD013"]
